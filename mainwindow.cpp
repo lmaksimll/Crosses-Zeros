@@ -37,6 +37,163 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::game_win(int res, vector<int> &tmp_index_cage)
+{
+    if(res == -1 || res == 0 || res == 1)
+    {
+        ui->pushButton_00->setEnabled(0);   //Заблокировать поле для нажати
+        ui->pushButton_01->setEnabled(0);
+        ui->pushButton_02->setEnabled(0);
+        ui->pushButton_10->setEnabled(0);
+        ui->pushButton_11->setEnabled(0);
+        ui->pushButton_12->setEnabled(0);
+        ui->pushButton_20->setEnabled(0);
+        ui->pushButton_21->setEnabled(0);
+        ui->pushButton_22->setEnabled(0);
+    }
+
+    if(res == -1)
+    {
+        ui->label_status->setText("Ничья.");
+        game_enabled(false);
+    }
+    else if(res == 0)
+    {
+        if(p.get_zeros())
+        {
+            //Победа 0, а именно игрока
+            ui->label_status->setText("Вы победили!");
+
+            int tmp_count = p.get_count();
+            tmp_count++;
+            p.set_count(tmp_count);
+
+            ui->spinBox_player->setValue(p.get_count());
+        }
+        else
+        {
+            //Поражение 0, а имеено игрока
+            ui->label_status->setText("Вы проиграли...");       //Вывести сообщение в статус игры
+
+            int tmp_count = b.get_count();                      //Добавить +1 очко победителю
+            tmp_count++;
+            b.set_count(tmp_count);
+
+            ui->spinBox_bot->setValue(b.get_count());           //Установить новое значение очков в поля
+        }
+
+        game_enabled(false);                                    //Установить статус игры = завершена
+        pain_win_cage(res, tmp_index_cage);                     //Закрасить победную комбинацию
+
+    }
+    else if(res == 1)
+    {
+        if(p.get_crosses())
+        {
+            //Победа Х, а именно игрока
+            ui->label_status->setText("Вы победили!");
+
+            int tmp_count = p.get_count();
+            tmp_count++;
+            p.set_count(tmp_count);
+
+            ui->spinBox_player->setValue(p.get_count());
+        }
+        else
+        {
+            //Поражение Х, а имеено игрока
+            ui->label_status->setText("Вы проиграли...");       //Вывести сообщение в статус игры
+
+            int tmp_count = b.get_count();                      //Добавить +1 очко победителю
+            tmp_count++;
+            b.set_count(tmp_count);
+
+            ui->spinBox_bot->setValue(b.get_count());           //Установить новое значение очков в поля
+        }
+
+        game_enabled(false);                                    //Установить статус игры = завершена
+        pain_win_cage(res, tmp_index_cage);                     //Закрасить победную комбинацию
+    }
+}
+
+void MainWindow::pain_win_cage(int res, vector<int> &tmp_index_cage)
+{
+    auto iter = tmp_index_cage.begin();
+    while(iter != tmp_index_cage.end())
+    {
+        if(res == 1)
+        {
+            switch (*iter) {
+            case 1:
+                ui->pushButton_00->setStyleSheet(style_cage::getInstance().paint_win_crosses());
+                break;
+            case 2:
+                ui->pushButton_01->setStyleSheet(style_cage::getInstance().paint_win_crosses());
+                break;
+            case 3:
+                ui->pushButton_02->setStyleSheet(style_cage::getInstance().paint_win_crosses());
+                break;
+            case 4:
+                ui->pushButton_10->setStyleSheet(style_cage::getInstance().paint_win_crosses());
+                break;
+            case 5:
+                ui->pushButton_11->setStyleSheet(style_cage::getInstance().paint_win_crosses());
+                break;
+            case 6:
+                ui->pushButton_12->setStyleSheet(style_cage::getInstance().paint_win_crosses());
+                break;
+            case 7:
+                ui->pushButton_20->setStyleSheet(style_cage::getInstance().paint_win_crosses());
+                break;
+            case 8:
+                ui->pushButton_21->setStyleSheet(style_cage::getInstance().paint_win_crosses());
+                break;
+            case 9:
+                ui->pushButton_22->setStyleSheet(style_cage::getInstance().paint_win_crosses());
+                break;
+            default:
+                break;
+            }
+            iter++;
+        }
+        else
+        {
+            switch (*iter) {
+            case 1:
+                ui->pushButton_00->setStyleSheet(style_cage::getInstance().paint_win_zeros());
+                break;
+            case 2:
+                ui->pushButton_01->setStyleSheet(style_cage::getInstance().paint_win_zeros());
+                break;
+            case 3:
+                ui->pushButton_02->setStyleSheet(style_cage::getInstance().paint_win_zeros());
+                break;
+            case 4:
+                ui->pushButton_10->setStyleSheet(style_cage::getInstance().paint_win_zeros());
+                break;
+            case 5:
+                ui->pushButton_11->setStyleSheet(style_cage::getInstance().paint_win_zeros());
+                break;
+            case 6:
+                ui->pushButton_12->setStyleSheet(style_cage::getInstance().paint_win_zeros());
+                break;
+            case 7:
+                ui->pushButton_20->setStyleSheet(style_cage::getInstance().paint_win_zeros());
+                break;
+            case 8:
+                ui->pushButton_21->setStyleSheet(style_cage::getInstance().paint_win_zeros());
+                break;
+            case 9:
+                ui->pushButton_22->setStyleSheet(style_cage::getInstance().paint_win_zeros());
+                break;
+            default:
+                break;
+            }
+            iter++;
+        }
+    }
+}
+
 void MainWindow::game_enabled(bool game_start)
 {
     this->game_start = game_start;
@@ -99,23 +256,21 @@ void MainWindow::create_cage(bool bot, prnt_cage &new_cage)
     tmp++;
     f.set_step(tmp);                  //сделали 1 ход
 
-    if(f.get_step() >= 5)
-    {
-        //f.check_win();          //Проверить на победу
-        //game_win();             //Если победа вызвать функцию победы
-    }
+    vector<int> tmp_index_cage(3);
+    int res;
+    res = f.check_status_game(tmp_index_cage);          //Проверить на победу
+    game_win(res, tmp_index_cage);
 
-    if(!bot && f.get_step() < 9)
+    if(game_start && !bot && f.get_step() < 9)
     {
         int number = f.analysis_cage();                //Сказали боту что нужно ходить если кнопка нажата пользователем
         selection_cage(number);                        //Бот сделал выбор
     }
 
-    if(f.get_step() == 9)
+    if(game_start)
     {
-        game_message::getInstance().draw();          //Сказать что ничья сообщением
-        game_enabled(false);
-        //clicked_button_clear();
+        res = f.check_status_game(tmp_index_cage);          //Проверить на победу
+        game_win(res, tmp_index_cage);
     }
 }
 
@@ -141,6 +296,8 @@ void MainWindow::clicked_button_clear()
     f.set_step(0);
 
     game_enabled(false);             //Разблокировать выбор символа для нажати
+
+    ui->label_status->setText("Ваш ход.");
 
     ui->pushButton_00->setEnabled(1);   //Разблокировать поле для нажати
     ui->pushButton_01->setEnabled(1);
@@ -177,37 +334,37 @@ void MainWindow::clicked_button_reset()
 void MainWindow::paint_cage_00(bool bot)
 {
     if(!bot)
-    {
-        prnt_cage c00(1,p);
-        create_cage(bot,c00);
-
-        if(p.get_crosses())
         {
-            //крестик
-            ui->pushButton_00->setStyleSheet(style_cage::getInstance().paint_crosses());
+            if(p.get_crosses())
+            {
+                //крестик
+                ui->pushButton_00->setStyleSheet(style_cage::getInstance().paint_crosses());
+            }
+            else
+            {
+                //нолик
+                ui->pushButton_00->setStyleSheet(style_cage::getInstance().paint_zeros());
+            }
+
+            prnt_cage c00(1,p);
+            create_cage(bot,c00);
         }
         else
         {
-            //нолик
-            ui->pushButton_00->setStyleSheet(style_cage::getInstance().paint_zeros());
-        }
-    }
-    else
-    {
-        prnt_cage c00(1,b);
-        create_cage(bot,c00);
+            if(b.get_crosses())
+            {
+                //крестик
+                ui->pushButton_00->setStyleSheet(style_cage::getInstance().paint_crosses());
+            }
+            else
+            {
+                //нолик
+                ui->pushButton_00->setStyleSheet(style_cage::getInstance().paint_zeros());
+            }
 
-        if(b.get_crosses())
-        {
-            //крестик
-            ui->pushButton_00->setStyleSheet(style_cage::getInstance().paint_crosses());
+            prnt_cage c00(1,b);
+            create_cage(bot,c00);
         }
-        else
-        {
-            //нолик
-            ui->pushButton_00->setStyleSheet(style_cage::getInstance().paint_zeros());
-        }
-    }
 
     ui->pushButton_00->setEnabled(0);
 }
@@ -216,9 +373,6 @@ void MainWindow::paint_cage_01(bool bot)
 {
     if(!bot)
     {
-        prnt_cage c01(2,p);
-        create_cage(bot,c01);
-
         if(p.get_crosses())
         {
             //крестик
@@ -229,12 +383,12 @@ void MainWindow::paint_cage_01(bool bot)
             //нолик
             ui->pushButton_01->setStyleSheet(style_cage::getInstance().paint_zeros());
         }
+
+        prnt_cage c01(2,p);
+        create_cage(bot,c01);
     }
     else
     {
-        prnt_cage c01(2,b);
-        create_cage(bot,c01);
-
         if(b.get_crosses())
         {
             //крестик
@@ -245,6 +399,9 @@ void MainWindow::paint_cage_01(bool bot)
             //нолик
             ui->pushButton_01->setStyleSheet(style_cage::getInstance().paint_zeros());
         }
+
+        prnt_cage c01(2,b);
+        create_cage(bot,c01);
     }
 
     ui->pushButton_01->setEnabled(0);
@@ -254,9 +411,6 @@ void MainWindow::paint_cage_02(bool bot)
 {
     if(!bot)
     {
-        prnt_cage c02(3,p);
-        create_cage(bot,c02);
-
         if(p.get_crosses())
         {
             //крестик
@@ -267,12 +421,12 @@ void MainWindow::paint_cage_02(bool bot)
             //нолик
             ui->pushButton_02->setStyleSheet(style_cage::getInstance().paint_zeros());
         }
+
+        prnt_cage c02(3,p);
+        create_cage(bot,c02);
     }
     else
     {
-        prnt_cage c02(3,b);
-        create_cage(bot,c02);
-
         if(b.get_crosses())
         {
             //крестик
@@ -283,6 +437,9 @@ void MainWindow::paint_cage_02(bool bot)
             //нолик
             ui->pushButton_02->setStyleSheet(style_cage::getInstance().paint_zeros());
         }
+
+        prnt_cage c02(3,b);
+        create_cage(bot,c02);
     }
 
     ui->pushButton_02->setEnabled(0);
@@ -292,9 +449,6 @@ void MainWindow::paint_cage_10(bool bot)
 {
     if(!bot)
     {
-        prnt_cage c10(4,p);
-        create_cage(bot,c10);
-
         if(p.get_crosses())
         {
             //крестик
@@ -305,12 +459,12 @@ void MainWindow::paint_cage_10(bool bot)
             //нолик
             ui->pushButton_10->setStyleSheet(style_cage::getInstance().paint_zeros());
         }
+
+        prnt_cage c10(4,p);
+        create_cage(bot,c10);
     }
     else
     {
-        prnt_cage c10(4,b);
-        create_cage(bot,c10);
-
         if(b.get_crosses())
         {
             //крестик
@@ -321,6 +475,9 @@ void MainWindow::paint_cage_10(bool bot)
             //нолик
             ui->pushButton_10->setStyleSheet(style_cage::getInstance().paint_zeros());
         }
+
+        prnt_cage c10(4,b);
+        create_cage(bot,c10);
     }
 
     ui->pushButton_10->setEnabled(0);
@@ -330,9 +487,6 @@ void MainWindow::paint_cage_11(bool bot)
 {
     if(!bot)
     {
-        prnt_cage c11(5,p);
-        create_cage(bot,c11);
-
         if(p.get_crosses())
         {
             //крестик
@@ -343,12 +497,12 @@ void MainWindow::paint_cage_11(bool bot)
             //нолик
             ui->pushButton_11->setStyleSheet(style_cage::getInstance().paint_zeros());
         }
+
+        prnt_cage c11(5,p);
+        create_cage(bot,c11);
     }
     else
     {
-        prnt_cage c11(5,b);
-        create_cage(bot,c11);
-
         if(b.get_crosses())
         {
             //крестик
@@ -359,6 +513,9 @@ void MainWindow::paint_cage_11(bool bot)
             //нолик
             ui->pushButton_11->setStyleSheet(style_cage::getInstance().paint_zeros());
         }
+
+        prnt_cage c11(5,b);
+        create_cage(bot,c11);
     }
 
     ui->pushButton_11->setEnabled(0);
@@ -368,9 +525,6 @@ void MainWindow::paint_cage_12(bool bot)
 {
     if(!bot)
     {
-        prnt_cage c12(6,p);
-        create_cage(bot,c12);
-
         if(p.get_crosses())
         {
             //крестик
@@ -381,12 +535,12 @@ void MainWindow::paint_cage_12(bool bot)
             //нолик
             ui->pushButton_12->setStyleSheet(style_cage::getInstance().paint_zeros());
         }
+
+        prnt_cage c12(6,p);
+        create_cage(bot,c12);
     }
     else
     {
-        prnt_cage c12(6,b);
-        create_cage(bot,c12);
-
         if(b.get_crosses())
         {
             //крестик
@@ -397,6 +551,9 @@ void MainWindow::paint_cage_12(bool bot)
             //нолик
             ui->pushButton_12->setStyleSheet(style_cage::getInstance().paint_zeros());
         }
+
+        prnt_cage c12(6,b);
+        create_cage(bot,c12);
     }
 
     ui->pushButton_12->setEnabled(0);
@@ -406,9 +563,6 @@ void MainWindow::paint_cage_20(bool bot)
 {
     if(!bot)
     {
-        prnt_cage c20(7,p);
-        create_cage(bot,c20);
-
         if(p.get_crosses())
         {
             //крестик
@@ -419,12 +573,12 @@ void MainWindow::paint_cage_20(bool bot)
             //нолик
             ui->pushButton_20->setStyleSheet(style_cage::getInstance().paint_zeros());
         }
+
+        prnt_cage c20(7,p);
+        create_cage(bot,c20);  
     }
     else
     {
-        prnt_cage c20(7,b);
-        create_cage(bot,c20);
-
         if(b.get_crosses())
         {
             //крестик
@@ -435,6 +589,9 @@ void MainWindow::paint_cage_20(bool bot)
             //нолик
             ui->pushButton_20->setStyleSheet(style_cage::getInstance().paint_zeros());
         }
+
+        prnt_cage c20(7,b);
+        create_cage(bot,c20);
     }
 
     ui->pushButton_20->setEnabled(0);
@@ -444,9 +601,6 @@ void MainWindow::paint_cage_21(bool bot)
 {
     if(!bot)
     {
-        prnt_cage c21(8,p);
-        create_cage(bot,c21);
-
         if(p.get_crosses())
         {
             //крестик
@@ -457,12 +611,12 @@ void MainWindow::paint_cage_21(bool bot)
             //нолик
             ui->pushButton_21->setStyleSheet(style_cage::getInstance().paint_zeros());
         }
+
+        prnt_cage c21(8,p);
+        create_cage(bot,c21);
     }
     else
     {
-        prnt_cage c21(8,b);
-        create_cage(bot,c21);
-
         if(b.get_crosses())
         {
             //крестик
@@ -473,6 +627,9 @@ void MainWindow::paint_cage_21(bool bot)
             //нолик
             ui->pushButton_21->setStyleSheet(style_cage::getInstance().paint_zeros());
         }
+
+        prnt_cage c21(8,b);
+        create_cage(bot,c21);
     }
 
     ui->pushButton_21->setEnabled(0);
@@ -482,9 +639,6 @@ void MainWindow::paint_cage_22(bool bot)
 {
     if(!bot)
     {
-        prnt_cage c22(9,p);
-        create_cage(bot,c22);
-
         if(p.get_crosses())
         {
             //крестик
@@ -495,12 +649,12 @@ void MainWindow::paint_cage_22(bool bot)
             //нолик
             ui->pushButton_22->setStyleSheet(style_cage::getInstance().paint_zeros());
         }
+
+        prnt_cage c22(9,p);
+        create_cage(bot,c22);
     }
     else
     {
-        prnt_cage c22(9,b);
-        create_cage(bot,c22);
-
         if(b.get_crosses())
         {
             //крестик
@@ -511,9 +665,11 @@ void MainWindow::paint_cage_22(bool bot)
             //нолик
             ui->pushButton_22->setStyleSheet(style_cage::getInstance().paint_zeros());
         }
+
+        prnt_cage c22(9,b);
+        create_cage(bot,c22);
     }
 
     ui->pushButton_22->setEnabled(0);
 }
-
 

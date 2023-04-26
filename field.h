@@ -18,13 +18,15 @@ class field
         void set_cage_field(prnt_cage new_cage);
         void delete_cage();
 
-        bool check_win();
+        int check_status_game(vector<int> &index_cage);
 
         int analysis_cage();
 
     private:
         vector <prnt_cage> cage_field;
         int step = 0;
+
+        int analysis_line(vector<int> &tmp_crosses,vector<int> &tmp_zeros,vector<int> &index_cage);
 
 };
 

@@ -20,3 +20,13 @@ int prnt_cage::get_number_cage()
 {
     return number_cage;
 }
+
+bool prnt_cage::get_crosses_cage()
+{
+    return crosses_cage;
+}
+
+bool prnt_cage::get_zeros_cage()
+{
+    return zeros_cage;
+}

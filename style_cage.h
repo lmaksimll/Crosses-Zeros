@@ -19,7 +19,10 @@ public:
 
     QString paint_crosses();
     QString paint_zeros();
-    QString paint_win_cage();
+
+    QString paint_win_crosses();
+    QString paint_win_zeros();
+
     QString paint_default_cage();
 };
 

@@ -11,7 +11,6 @@ CONFIG += c++17
 SOURCES += \
     bot.cpp \
     field.cpp \
-    game_message.cpp \
     main.cpp \
     mainwindow.cpp \
     player.cpp \
@@ -23,7 +22,6 @@ SOURCES += \
 HEADERS += \
     bot.h \
     field.h \
-    game_message.h \
     mainwindow.h \
     player.h \
     prnt_cage.h \

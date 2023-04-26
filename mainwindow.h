@@ -6,7 +6,6 @@
 #include <bot.h>
 #include <field.h>
 #include <prnt_cage.h>
-#include <game_message.h>
 #include <style_cage.h>
 
 
@@ -30,10 +29,11 @@ private:
     field f;        //Поле
     bool game_start = false;
 
-    //void game_win();                        //Вызов ui функции победы
-    void game_enabled(bool game_start);       //Вкл или выкл возможность выбирать символ и установка статуса игры
-    void selection_cage(int number);          //Выбрать клетку
-    void create_cage(bool bot, prnt_cage &new_cage);  //Создание клетки в памяти
+    void game_win(int res,vector<int> &tmp_index_cage);                 //Вызов ui функции конца игры
+    void pain_win_cage(int res, vector<int> &tmp_index_cage);           //Закрашиваем клетки победителя игры
+    void game_enabled(bool game_start);                                 //Вкл или выкл возможность выбирать символ и установка статуса игры
+    void selection_cage(int number);                                    //Выбрать клетку
+    void create_cage(bool bot, prnt_cage &new_cage);                    //Создание клетки в памяти
 
 private slots:
     void clicked_button_x();
